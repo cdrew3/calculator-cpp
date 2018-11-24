@@ -1,0 +1,25 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "calc-cpp-test-build",
+            "type": "shell",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-std=c++11",
+                "-I",
+                "${workspaceFolder}/include",
+                "-o",
+                "${workspaceFolder}/test/runtests",
+                "${workspaceFolder}/test/testCalc.cpp",
+            ]
+        },
+        {
+            "label": "calc-cpp-test-run",
+            "type": "shell",
+            "command": "${workspaceFolder}/test/runtests",
+        }
+    ]
+}
