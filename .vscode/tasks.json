@@ -13,13 +13,27 @@
                 "${workspaceFolder}/include",
                 "-o",
                 "${workspaceFolder}/test/runtests",
-                "${workspaceFolder}/test/testCalc.cpp",
-            ]
+                "${workspaceFolder}/test/testCalc.cpp"
+            ],
         },
         {
             "label": "calc-cpp-test-run",
             "type": "shell",
             "command": "${workspaceFolder}/test/runtests",
+            "dependsOn": [
+                "calc-cpp-test-build"
+            ]
+        },
+        {
+            "label": "calc-cpp-test",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "calc-cpp-test-build",
+                "calc-cpp-test-run",
+            ]
         }
     ]
 }

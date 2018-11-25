@@ -1,13 +1,17 @@
+
+#include <map>
+using namespace std;
+
 namespace arithmetic {
 
     bool equal(int, int);
-    bool equal(float, float);
+    bool equal(double, double);
 
     // Addition
     int add(int x, int y) {
         return x + y;
     }
-    float add(float x, float y) {
+    double add(double x, double y) {
         return x + y;
     }
 
@@ -15,7 +19,7 @@ namespace arithmetic {
     int sub(int x, int y) {
         return x - y;
     }
-    float sub(float x, float y) {
+    double sub(double x, double y) {
         return x - y;
     }
 
@@ -23,7 +27,7 @@ namespace arithmetic {
     int mul(int x, int y) {
         return x * y;
     }
-    float mul(float x, float y) {
+    double mul(double x, double y) {
         return x * y;
     }
 
@@ -31,7 +35,7 @@ namespace arithmetic {
     int div(int x, int y) {
         return x / y;
     }
-    float div(float x, float y) {
+    double div(double x, double y) {
         return x / y;
     }
 }

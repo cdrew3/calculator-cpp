@@ -18,24 +18,38 @@ void printFailFail(string, string, string, string, string); // Should fail, fail
 void testAdd();
 void testSub();
 bool equal (int, int, double);
-bool equal (float, float, double);
-bool assertEqual(int, int, int, int (*f)(int, int));
-bool assertEqual(float, float, float, int (*f)(float, float));
+bool equal (double, double, double);
+void assertEqual(int (*f)(int, int), int, int, int);
+void assertEqual(double (*f)(double, double), double, double, double);
+
+map<string, string> funcStr;
 
 int main() {
 
-    if (assertEqual(3, 4, 9, add)) {
+    assertEqual(add, 3, 4, 7);
+    assertEqual(add, 3.3, 4.3, 7.6);
+}
+
+void assertEqual(int (*f)(int, int), int a, int b, int c) {
+
+    string test = "Testing " + to_string(a) + " + " + to_string(b) + " = "  + to_string(c);
+    cout << test << endl;
+    if (equal((*f)(a, b), c, TOLERANCE)) {
         cout << "SUCCESS!!!" << endl;
     } else {
         cout << "FAILURE!!!" << endl;
     }
 }
 
-bool assertEqual(int a, int b, int c, int (*f)(int, int)) {
+void assertEqual(double (*f)(double, double), double a, double b, double c) {
 
     string test = "Testing " + to_string(a) + " + " + to_string(b) + " = "  + to_string(c);
     cout << test << endl;
-    return equal((*f)(a, b), c, TOLERANCE);
+    if (equal((*f)(a, b), c, TOLERANCE)) {
+        cout << "SUCCESS!!!" << endl;
+    } else {
+        cout << "FAILURE!!!" << endl;
+    }
 }
 
 int main_not() {
@@ -56,7 +70,7 @@ bool equal (int x, int y, double tolerance) {
     }
 }
 
-bool equal (float x, float y, double tolerance) {
+bool equal (double x, double y, double tolerance) {
 
     double avg = (x + y) / 2;
     double epsilon = avg * tolerance;
@@ -110,11 +124,11 @@ void testAdd() {
         printFailFail(op, to_string(x), to_string(y), to_string(z_exp), to_string(z_exp));
     }
 
-    // Should pass, float
-    float a = 2.3;
-    float b = 8.1;
-    float c_act = arithmetic::add(a, b);
-    float c_exp = a + b;
+    // Should pass, double
+    double a = 2.3;
+    double b = 8.1;
+    double c_act = arithmetic::add(a, b);
+    double c_exp = a + b;
 
     if (equal(c_act, c_exp, TOLERANCE)) {
         printPassPass(op, to_string(a), to_string(b), to_string(c_exp));
@@ -122,7 +136,7 @@ void testAdd() {
         printPassFail(op, to_string(a), to_string(b), to_string(c_exp), to_string(c_act));
     }
 
-    // Should fail, float
+    // Should fail, double
     a = 12.3;
     b = 18.1;
     c_act = arithmetic::add(a, b);
@@ -150,10 +164,10 @@ void testSub() {
         printPassFail(op, to_string(x), to_string(y), to_string(z_act), to_string(z_exp));
     }
 
-    float a = 15.9;
-    float b = 12.2;
-    float c_act = arithmetic::sub(a, b);
-    float c_exp = a - b;
+    double a = 15.9;
+    double b = 12.2;
+    double c_act = arithmetic::sub(a, b);
+    double c_exp = a - b;
 
     if (equal(c_act, c_exp, TOLERANCE)) {
         printPassPass(op, to_string(a), to_string(b), to_string(c_exp));
