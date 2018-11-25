@@ -6,6 +6,7 @@
 #include "arithmetic.h"
 
 using namespace std;
+using namespace arithmetic;
 using std::to_string;
 
 #define TOLERANCE (1.0E-6)
@@ -16,8 +17,28 @@ void printFailPass(string, string, string, string); // Should fail, passes
 void printFailFail(string, string, string, string, string); // Should fail, fails
 void testAdd();
 void testSub();
+bool equal (int, int, double);
+bool equal (float, float, double);
+bool assertEqual(int, int, int, int (*f)(int, int));
+bool assertEqual(float, float, float, int (*f)(float, float));
 
 int main() {
+
+    if (assertEqual(3, 4, 9, add)) {
+        cout << "SUCCESS!!!" << endl;
+    } else {
+        cout << "FAILURE!!!" << endl;
+    }
+}
+
+bool assertEqual(int a, int b, int c, int (*f)(int, int)) {
+
+    string test = "Testing " + to_string(a) + " + " + to_string(b) + " = "  + to_string(c);
+    cout << test << endl;
+    return equal((*f)(a, b), c, TOLERANCE);
+}
+
+int main_not() {
     testAdd();
     testSub();
 }
