@@ -9,169 +9,118 @@ using namespace std;
 using namespace arithmetic;
 using std::to_string;
 
-#define TOLERANCE (1.0E-6)
+#define TOLERANCE (1.0E-6) // Error tolerance for floating point comparisons
 
-void printPassPass(string, string, string, string); // Should pass, passes
-void printPassFail(string, string, string, string, string); // Should pass, fails
-void printFailPass(string, string, string, string); // Should fail, passes
-void printFailFail(string, string, string, string, string); // Should fail, fails
-void testAdd();
-void testSub();
-bool equal (int, int, double);
-bool equal (double, double, double);
-void assertEqual(int (*f)(int, int), int, int, int);
-void assertEqual(double (*f)(double, double), double, double, double);
+template <class t>
+bool equal (t, t, double);
 
-map<string, string> funcStr;
+template <class t1>
+pair<bool, string> assertEqual(t1 (*f)(t1, t1), t1, string, t1, t1);
+
+template <class t2>
+pair<bool, string> assertNotEqual(t2 (*f)(t2, t2), t2, string, t2, t2);
+
+template <class t3>
+vector<pair<bool, string>> performTests(vector<vector<t3>>);
 
 int main() {
 
-    assertEqual(add, 3, 4, 7);
-    assertEqual(add, 3.3, 4.3, 7.6);
-}
+    int err = 0, suc = 0;
+    vector<string> errors = {};
 
-void assertEqual(int (*f)(int, int), int a, int b, int c) {
+    vector<vector<int>> testsInt = {
+        {10, 5, 15, 5, 50, 2, 10},
+        {30, -2, 28, 32, -60, -15, 22},
+    };
 
-    string test = "Testing " + to_string(a) + " + " + to_string(b) + " = "  + to_string(c);
-    cout << test << endl;
-    if (equal((*f)(a, b), c, TOLERANCE)) {
-        cout << "SUCCESS!!!" << endl;
-    } else {
-        cout << "FAILURE!!!" << endl;
+    vector<vector<double>> testsDbl = {
+        {11.3, 8.3, 19.6, 3.0, 93.79, 1.3614457831325302, .0876},
+        {30.567, -2.32, 28.247, 32.887, -70.91543999999999, -13.17543103448276, 98.76},
+    };
+
+    // Create vectors and run tests
+    vector<pair<bool, string>> results;
+    vector<pair<bool, string>> resultsInt = performTests(testsInt);
+    vector<pair<bool, string>> resultsDbl = performTests(testsDbl);
+    
+    // Combine vector results
+    results.reserve(resultsInt.size() + resultsDbl.size());
+    results.insert(results.end(), resultsInt.begin(), resultsInt.end());
+    results.insert(results.end(), resultsDbl.begin(), resultsDbl.end());
+
+    // Parse results
+    for (pair<bool, string> result : results) {
+        if (result.first) { suc++; }
+        else { err++; errors.push_back(result.second); }
+    }
+
+    // Print results
+    cout << "Tests Passed: " << suc << endl;
+    cout << "Tests Failed: " << err << endl;
+    for (string msg : errors) {
+        cout << "\t" << msg << endl;
     }
 }
 
-void assertEqual(double (*f)(double, double), double a, double b, double c) {
+template <class t0>
+bool equal (t0 x, t0 y, double tolerance) {
 
-    string test = "Testing " + to_string(a) + " + " + to_string(b) + " = "  + to_string(c);
-    cout << test << endl;
-    if (equal((*f)(a, b), c, TOLERANCE)) {
-        cout << "SUCCESS!!!" << endl;
-    } else {
-        cout << "FAILURE!!!" << endl;
-    }
-}
+    // Try system comparison in case it works
+    if (x == y) { return true; }
 
-int main_not() {
-    testAdd();
-    testSub();
-}
-
-bool equal (int x, int y, double tolerance) {
-
+    // If it doesn't, do epsilon comparison
     double avg = (x + y) / 2;
-    double epsilon = avg * tolerance;
+    double epsilon = fabs(avg * tolerance);
     double absDiff = fabs(x - y);
 
-    if (absDiff < epsilon) {
+    if (absDiff <= epsilon) {
         return true;
     } else {
         return false;
     }
 }
 
-bool equal (double x, double y, double tolerance) {
+template <class t1>
+pair<bool, string> assertEqual(t1 (*f)(t1, t1), t1 a, string op, t1 b, t1 c) {
 
-    double avg = (x + y) / 2;
-    double epsilon = avg * tolerance;
-    double absDiff = fabs(x - y);
+    bool result = equal((*f)(a, b), c, TOLERANCE);
+    string msg = to_string(a) + " " + op + " " + to_string(b) + " = "  + to_string(c);
 
-    if (absDiff < epsilon) {
-        return true;
-    } else {
-        return false;
-    }
+    pair<bool, string> ret = make_pair(result, msg);
+
+    return ret;
 }
 
-void printPassPass(string op, string x, string y, string val_act) {
-    cout << "PASSED: " << x <<  " " << op << " " << y << " = " << val_act << endl;
-}
-void printPassFail(string op, string x, string y, string val_exp, string val_act) {
-    cout << "FAILED: " << x <<  " " << op << " " << y << " = " << val_act << " (Should be " << val_exp << ")" << endl;
-}
-void printFailPass(string op, string x, string y, string val_act) {
-    cout << "PASSED: " << x <<  " " << op << " " << y << " != " << val_act << endl;
-}
-void printFailFail(string op, string x, string y, string val_exp, string val_act) {
-    cout << "FAILED: " << x <<  " " << op << " " << y << " != " << val_act << " (Should not be " << val_exp << ")" << endl;
+template <class t2>
+pair<bool, string> assertNotEqual(t2 (*f)(t2, t2), t2 a, string op, t2 b, t2 c) {
+
+    bool result = !equal((*f)(a, b), c, TOLERANCE);
+    string msg = to_string(a) + " " + op + " " + to_string(b) + " != "  + to_string(c);
+
+    pair<bool, string> ret = make_pair(result, msg);
+
+    return ret;
 }
 
-void testAdd() {
+template <class t3>
+vector<pair<bool, string>> performTests(vector<vector<t3>> testVals) {
 
-    string op = "+";
+    vector<pair<bool, string>> results;
 
-    // Should pass, integer
-    int x = 2;
-    int y = 3;
-    int z_act = arithmetic::add(x, y);
-    int z_exp = x + y;
+    for (vector<t3> vals : testVals) {
 
-    if (equal(z_act, z_exp, TOLERANCE)) {
-        printPassPass(op, to_string(x), to_string(y), to_string(z_act));
-    } else {
-        printPassFail(op, to_string(x), to_string(y), to_string(z_act), to_string(z_exp));
+        results.push_back(assertEqual(add, vals[0], "+", vals[1], vals[2]));
+        results.push_back(assertNotEqual(add, vals[0], "+", vals[1], vals[6]));
+
+        results.push_back(assertEqual(sub, vals[0], "-", vals[1], vals[3]));
+        results.push_back(assertNotEqual(sub, vals[0], "-", vals[1], vals[6]));
+
+        results.push_back(assertEqual(mul, vals[0], "*", vals[1], vals[4]));
+        results.push_back(assertNotEqual(mul, vals[0], "*", vals[1], vals[6]));
+
+        results.push_back(assertEqual(div, vals[0], "/", vals[1], vals[5]));
+        results.push_back(assertNotEqual(div, vals[0], "/", vals[1], vals[6]));
     }
 
-    // Shoulld fail, integer
-    x = 7;
-    y = 14;
-    z_act = arithmetic::add(x, y);
-    z_exp = x + y + 2;
-
-    if (!equal(z_act, z_exp, TOLERANCE)) {
-        printFailPass(op, to_string(x), to_string(y), to_string(z_exp));
-    } else {
-        printFailFail(op, to_string(x), to_string(y), to_string(z_exp), to_string(z_exp));
-    }
-
-    // Should pass, double
-    double a = 2.3;
-    double b = 8.1;
-    double c_act = arithmetic::add(a, b);
-    double c_exp = a + b;
-
-    if (equal(c_act, c_exp, TOLERANCE)) {
-        printPassPass(op, to_string(a), to_string(b), to_string(c_exp));
-    } else {
-        printPassFail(op, to_string(a), to_string(b), to_string(c_exp), to_string(c_act));
-    }
-
-    // Should fail, double
-    a = 12.3;
-    b = 18.1;
-    c_act = arithmetic::add(a, b);
-    c_exp = a + b + 2;
-
-    if (!equal(c_act, c_exp, TOLERANCE)) {
-        printFailPass(op, to_string(a), to_string(b), to_string(c_exp));
-    } else {
-        printFailFail(op, to_string(a), to_string(b), to_string(c_exp), to_string(c_act));
-    }
-}
-
-void testSub() {
-
-    string op = "-";
-
-    int x = 33;
-    int y = 20;
-    int z_act = arithmetic::sub(x, y);
-    int z_exp = x - y;
-
-    if (equal(z_act, z_exp, TOLERANCE)) {
-        printPassPass(op, to_string(x), to_string(y), to_string(z_act));
-    } else {
-        printPassFail(op, to_string(x), to_string(y), to_string(z_act), to_string(z_exp));
-    }
-
-    double a = 15.9;
-    double b = 12.2;
-    double c_act = arithmetic::sub(a, b);
-    double c_exp = a - b;
-
-    if (equal(c_act, c_exp, TOLERANCE)) {
-        printPassPass(op, to_string(a), to_string(b), to_string(c_exp));
-    } else {
-        printPassFail(op, to_string(a), to_string(b), to_string(c_exp), to_string(c_act));
-    }
+    return results;
 }
